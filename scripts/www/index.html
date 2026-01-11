@@ -1,11 +1,1042 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus</title>
-    </head>
-    <body>
-        PakePlus
-    </body>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Naskah Joko Kendil - RIZK Creative Media</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif']
+          },
+          colors: {
+            stone: {
+              950: '#0c0a09'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+    }
+    .dark {
+      color-scheme: dark;
+    }
+    body {
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bg-grid {
+      background-image: radial-gradient(circle at 1px 1px, rgba(101, 163, 13, 0.15) 1px, transparent 0);
+      background-size: 20px 20px;
+    }
+    .glass {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .memorize {
+      filter: blur(12px);
+      transition: filter .2s ease-out;
+      user-select: none;
+      cursor: pointer;
+      background-color: rgba(0,0,0,0.05);
+      border-radius: 12px;
+    }
+    .memorize.revealed {
+      filter: blur(0);
+      background-color: transparent;
+    }
+    .drag-handle {
+      cursor: grab;
+      touch-action: none;
+    }
+    .dragging {
+      opacity: 0.5;
+      transform: scale(0.98);
+    }
+    .drop-target {
+      border-color: #84cc16;
+      background-color: rgba(132, 204, 22, 0.1);
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .pulse-orange {
+      animation: pulseOrange 1.5s ease-in-out infinite;
+    }
+    @keyframes pulseOrange {
+      0%, 100% { opacity: 0.7; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+    .draft-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 20px;
+      height: 20px;
+      background: #f97316;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .bookmark-badge {
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      width: 24px;
+      height: 24px;
+      background: #3b82f6;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    .last-edited-highlight {
+      animation: highlightPulse 2s ease-out;
+    }
+    @keyframes highlightPulse {
+      0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+      50% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+    .new-duplicate-highlight {
+      animation: duplicateGlow 1.5s ease-out;
+    }
+    @keyframes duplicateGlow {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      50% { box-shadow: 0 0 0 12px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-stone-50 text-stone-900 font-sans transition-colors duration-300 dark:bg-stone-950 dark:text-stone-100 pb-20">
+  <div class="pointer-events-none fixed inset-0 bg-grid z-0"></div>
+
+  <header class="sticky top-0 z-50 w-full border-b border-stone-200 bg-white/80 glass dark:border-stone-800 dark:bg-stone-900/80">
+    <div class="mx-auto max-w-5xl px-4 py-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-lime-100 text-2xl dark:bg-lime-900/50">🎭</div>
+          <div class="leading-tight">
+            <h1 class="text-lg font-bold tracking-tight">Joko Kendil</h1>
+            <p class="text-[10px] font-bold uppercase tracking-wide text-lime-600 dark:text-lime-400">RIZK Creative Media</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button id="bookmarkBtn" class="hidden h-9 items-center gap-2 rounded-lg px-3 text-sm font-bold shadow-lg transition-all" title="Lompat ke markah terakhir">
+            <span>📍</span>
+            <span class="hidden sm:inline">MARKAH</span>
+          </button>
+          <button id="publishBtn" class="hidden relative flex h-9 items-center gap-2 rounded-lg bg-orange-600 px-4 text-sm font-bold text-white shadow-lg hover:bg-orange-700 transition-all">
+            <span>☁️ PUBLISH</span>
+            <span id="changeCount" class="px-2 py-0.5 bg-white text-orange-600 rounded-full text-[10px] font-black">0</span>
+          </button>
+          <button id="authBtn" class="flex h-9 w-9 items-center justify-center rounded-lg text-stone-400 hover:bg-stone-100 transition-colors">🔒</button>
+          <button id="themeBtn" class="flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800">🌙</button>
+          <button id="exportBtn" class="flex h-9 items-center gap-2 rounded-lg bg-stone-900 px-3 text-sm font-semibold text-white dark:bg-stone-100 dark:text-stone-900">📄 PDF</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="relative z-10 mx-auto max-w-5xl px-4 py-6">
+    <section id="adminPanel" class="hidden mb-8 rounded-2xl border border-lime-200 bg-white p-5 shadow-xl dark:border-lime-900 dark:bg-stone-900 ring-1 ring-lime-500/20">
+      <div class="mb-4 flex items-center justify-between border-b border-stone-100 pb-3 dark:border-stone-800">
+        <h2 class="font-bold text-lime-600">Editor Admin</h2>
+        <div class="flex items-center gap-4">
+          <button id="clearBookmarkBtn" class="hidden text-xs font-bold text-blue-500 uppercase tracking-wider hover:text-blue-700">🗑️ Hapus Markah</button>
+          <button id="logoutBtn" class="text-xs font-bold text-rose-500 uppercase tracking-wider">Logout</button>
+        </div>
+      </div>
+      
+      <!-- Bookmark Info -->
+      <div id="bookmarkInfo" class="mb-4 p-3 rounded-xl border">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span id="bookmarkIcon">📍</span>
+            <span id="bookmarkLabel" class="text-xs font-bold">Markah Terakhir:</span>
+            <span id="bookmarkCharName" class="text-xs font-medium"></span>
+          </div>
+          <button id="jumpToBookmarkBtn" class="px-3 py-1 text-[10px] font-bold rounded-lg transition-colors">LOMPAT →</button>
+        </div>
+        <p id="bookmarkPreview" class="text-[11px] mt-1 truncate italic"></p>
+      </div>
+      
+      <form id="addForm" class="space-y-4 mb-6">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="mb-1 block text-[10px] font-bold uppercase text-stone-400">Pemeran</label>
+            <input id="charInput" type="text" list="charList" placeholder="Nama karakter..." class="w-full rounded-xl border border-stone-200 p-3 text-sm font-bold dark:bg-stone-800 dark:border-stone-700">
+            <datalist id="charList"></datalist>
+          </div>
+          <div>
+            <label class="mb-1 block text-[10px] font-bold uppercase text-stone-400">Isi Dialog</label>
+            <textarea id="textInput" rows="1" placeholder="Ketik naskah..." class="w-full rounded-xl border border-stone-200 p-3 text-sm dark:bg-stone-800 dark:border-stone-700 font-medium"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="w-full rounded-xl bg-lime-600 py-4 text-sm font-bold text-white shadow-lg active:scale-[0.98] transition-transform">➕ TAMBAH DIALOG</button>
+      </form>
+      <div class="border-t border-stone-100 pt-4 dark:border-stone-800">
+        <button id="resetScriptBtn" class="w-full px-3 py-2 border border-rose-200 text-rose-600 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-rose-50 transition-colors">🔄 RESET DATABASE CLOUD</button>
+      </div>
+    </section>
+
+    <section class="mb-6 sticky top-[65px] z-30 bg-stone-50/95 pt-3 pb-4 backdrop-blur-sm dark:bg-stone-950/95 shadow-sm border-b dark:border-stone-800">
+      <div class="flex items-center justify-between px-1 mb-3">
+        <div class="flex bg-stone-200 dark:bg-stone-800 p-1 rounded-xl">
+          <button id="modeHideBtn" class="px-3 py-2 rounded-lg text-[10px] font-bold uppercase bg-white text-rose-600 shadow-sm dark:bg-stone-700 dark:text-rose-400">🚫 Sembunyi</button>
+          <button id="modeFocusBtn" class="px-3 py-2 rounded-lg text-[10px] font-bold uppercase text-stone-500">🎯 Fokus</button>
+        </div>
+        <button id="resetHiddenBtn" class="text-[10px] font-bold uppercase text-stone-400 p-2">Reset</button>
+      </div>
+      <div id="characterToggles" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar px-1 min-h-[40px]"></div>
+      <div class="relative mt-4">
+        <input id="searchInput" type="text" placeholder="Cari dialog..." class="w-full rounded-xl border border-stone-200 p-3 pl-10 text-sm shadow-sm focus:border-lime-500 focus:ring-1 focus:ring-lime-500 outline-none dark:bg-stone-900 dark:border-stone-800">
+        <span class="absolute left-3.5 top-3 text-stone-400">🔍</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="mb-3 px-1 flex justify-between items-center">
+        <h3 class="text-[11px] font-bold text-stone-400 uppercase tracking-widest">Naskah Terdata (<span id="statsText">0</span>)</h3>
+      </div>
+      <div id="emptyState" class="hidden py-20 text-center border-2 border-dashed rounded-3xl dark:border-stone-800">
+        <p class="text-stone-400 text-sm font-medium">Database cloud kosong.</p>
+      </div>
+      <ol id="scriptContainer" class="space-y-5 pb-20"></ol>
+    </section>
+  </main>
+
+  <div id="loginModal" class="fixed inset-0 z-[80] hidden flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-md">
+    <div class="w-full max-w-sm rounded-3xl bg-white p-8 dark:bg-stone-900 shadow-2xl">
+      <h3 class="mb-6 text-center font-bold text-xl">Akses Editor</h3>
+      <input id="adminPasswordInput" type="password" placeholder="Password" class="mb-6 w-full rounded-xl border border-stone-200 p-4 text-center text-lg font-bold dark:bg-stone-800 dark:border-stone-700 outline-none focus:border-lime-500">
+      <div class="grid grid-cols-2 gap-4">
+        <button id="cancelLoginBtn" class="p-4 border rounded-xl font-bold text-stone-500 uppercase text-xs">Batal</button>
+        <button id="submitLoginBtn" class="p-4 bg-lime-600 text-white rounded-xl font-bold uppercase text-xs shadow-lg">Masuk</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="fixed inset-0 z-[90] hidden flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-md">
+    <div class="w-full max-w-sm rounded-3xl bg-white p-8 dark:bg-stone-900 text-center shadow-2xl">
+      <div class="text-4xl mb-4">⚠️</div>
+      <h3 class="font-bold text-xl mb-2">Konfirmasi</h3>
+      <p id="confirmMessage" class="text-sm text-stone-500 mb-8 font-medium"></p>
+      <div class="grid grid-cols-2 gap-4">
+        <button id="cancelConfirmBtn" class="p-4 border rounded-xl font-bold text-xs uppercase">Batal</button>
+        <button id="yesConfirmBtn" class="p-4 bg-rose-600 text-white rounded-xl font-bold text-xs uppercase shadow-lg">Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-10 left-1/2 z-[100] hidden -translate-x-1/2 rounded-2xl bg-stone-900 px-8 py-4 text-sm font-bold text-white dark:bg-white dark:text-stone-900 shadow-2xl whitespace-nowrap"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, writeBatch, query, orderBy, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // --- Firebase Config ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCpgNRXHXDOuv3XzzDSVD3Px_NA9vp0O9A",
+      authDomain: "penghafal-naskah-drama.firebaseapp.com",
+      projectId: "penghafal-naskah-drama",
+      storageBucket: "penghafal-naskah-drama.firebasestorage.app",
+      messagingSenderId: "990883490344",
+      appId: "1:990883490344:web:60c86d7c9a95596d7de31d",
+      measurementId: "G-X803FQFPFX"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const colRef = collection(db, "naskah_joko_kendil");
+
+    // --- State Management ---
+    let dialogs = [];
+    let draftDialogs = {};
+    let deletedIds = new Set();
+    let selectedFilters = new Set();
+    let filterMode = 'hide';
+    let isAdmin = false;
+    let editingId = null;
+    let confirmCallback = null;
+    let lastDuplicatedId = null; // Track untuk highlight duplikat baru
+    
+    // --- Bookmark/Markah State (Cloud-based) ---
+    const BOOKMARK_DOC_ID = '_bookmark_data_';
+    let currentBookmark = null;
+    
+    async function loadBookmarkFromCloud() {
+      try {
+        const bookmarkDoc = await getDoc(doc(db, "naskah_joko_kendil", BOOKMARK_DOC_ID));
+        if (bookmarkDoc.exists()) {
+          currentBookmark = bookmarkDoc.data();
+        } else {
+          currentBookmark = null;
+        }
+        updateBookmarkUI();
+        return currentBookmark;
+      } catch (error) {
+        console.error('Load bookmark error:', error);
+        return null;
+      }
+    }
+    
+    function getLastEditedBookmark() {
+      return currentBookmark;
+    }
+    
+    async function setLastEditedBookmark(id, character, textPreview) {
+      const bookmark = {
+        id,
+        character,
+        textPreview: textPreview.substring(0, 50) + (textPreview.length > 50 ? '...' : ''),
+        timestamp: Date.now(),
+        isBookmark: true
+      };
+      
+      currentBookmark = bookmark;
+      updateBookmarkUI();
+      
+      try {
+        await setDoc(doc(db, "naskah_joko_kendil", BOOKMARK_DOC_ID), bookmark);
+      } catch (error) {
+        console.error('Save bookmark error:', error);
+        showToast("⚠️ Gagal simpan markah ke cloud");
+      }
+    }
+    
+    async function clearBookmark() {
+      currentBookmark = null;
+      updateBookmarkUI();
+      
+      try {
+        await deleteDoc(doc(db, "naskah_joko_kendil", BOOKMARK_DOC_ID));
+        showToast("📍 Markah dihapus");
+      } catch (error) {
+        console.error('Delete bookmark error:', error);
+        showToast("⚠️ Gagal hapus markah");
+      }
+    }
+    
+    function updateBookmarkUI() {
+      const bookmark = getLastEditedBookmark();
+      const bookmarkBtn = document.getElementById('bookmarkBtn');
+      const bookmarkInfo = document.getElementById('bookmarkInfo');
+      const bookmarkCharName = document.getElementById('bookmarkCharName');
+      const bookmarkPreview = document.getElementById('bookmarkPreview');
+      const bookmarkIcon = document.getElementById('bookmarkIcon');
+      const bookmarkLabel = document.getElementById('bookmarkLabel');
+      const jumpBtn = document.getElementById('jumpToBookmarkBtn');
+      const clearBtn = document.getElementById('clearBookmarkBtn');
+      
+      if (isAdmin) {
+        bookmarkBtn.classList.remove('hidden');
+        bookmarkBtn.classList.add('flex');
+        
+        if (bookmark) {
+          bookmarkBtn.className = 'flex h-9 items-center gap-2 rounded-lg bg-blue-600 px-3 text-sm font-bold text-white shadow-lg hover:bg-blue-700 transition-all cursor-pointer';
+          bookmarkBtn.disabled = false;
+          bookmarkBtn.title = `Lompat ke: ${bookmark.character}`;
+          
+          bookmarkInfo.className = 'mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800';
+          bookmarkIcon.className = 'text-blue-600 dark:text-blue-400';
+          bookmarkLabel.className = 'text-xs font-bold text-blue-700 dark:text-blue-300';
+          bookmarkLabel.textContent = 'Markah Terakhir:';
+          bookmarkCharName.className = 'text-xs font-medium text-blue-600 dark:text-blue-400';
+          bookmarkCharName.textContent = bookmark.character;
+          bookmarkPreview.className = 'text-[11px] text-blue-500 dark:text-blue-400 mt-1 truncate italic';
+          bookmarkPreview.textContent = `"${bookmark.textPreview}"`;
+          jumpBtn.className = 'px-3 py-1 bg-blue-600 text-white text-[10px] font-bold rounded-lg hover:bg-blue-700 transition-colors cursor-pointer';
+          jumpBtn.disabled = false;
+          clearBtn.classList.remove('hidden');
+        } else {
+          bookmarkBtn.className = 'flex h-9 items-center gap-2 rounded-lg bg-stone-300 dark:bg-stone-700 px-3 text-sm font-bold text-stone-500 dark:text-stone-400 shadow transition-all cursor-not-allowed';
+          bookmarkBtn.disabled = true;
+          bookmarkBtn.title = 'Belum ada markah - edit dialog untuk membuat markah';
+          
+          bookmarkInfo.className = 'mb-4 p-3 bg-stone-100 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700';
+          bookmarkIcon.className = 'text-stone-400 dark:text-stone-500';
+          bookmarkLabel.className = 'text-xs font-bold text-stone-500 dark:text-stone-400';
+          bookmarkLabel.textContent = 'Belum ada markah';
+          bookmarkCharName.className = 'text-xs font-medium text-stone-400 dark:text-stone-500';
+          bookmarkCharName.textContent = '';
+          bookmarkPreview.className = 'text-[11px] text-stone-400 dark:text-stone-500 mt-1 truncate italic';
+          bookmarkPreview.textContent = 'Edit atau klik 📍 pada dialog untuk membuat markah';
+          jumpBtn.className = 'px-3 py-1 bg-stone-300 dark:bg-stone-600 text-stone-500 dark:text-stone-400 text-[10px] font-bold rounded-lg cursor-not-allowed';
+          jumpBtn.disabled = true;
+          clearBtn.classList.add('hidden');
+        }
+      } else {
+        bookmarkBtn.classList.add('hidden');
+        bookmarkBtn.classList.remove('flex');
+      }
+    }
+    
+    function jumpToBookmark(highlight = true) {
+      const bookmark = getLastEditedBookmark();
+      if (!bookmark) {
+        showToast("❌ Tidak ada markah tersimpan");
+        return;
+      }
+      
+      const element = document.querySelector(`[data-dialog-id="${bookmark.id}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (highlight) {
+          element.classList.add('last-edited-highlight');
+          setTimeout(() => element.classList.remove('last-edited-highlight'), 2000);
+        }
+        showToast(`📍 Lompat ke: ${bookmark.character}`);
+      } else {
+        showToast("❌ Dialog tidak ditemukan");
+      }
+    }
+
+    const colors = [
+      'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-200',
+      'bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200',
+      'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200',
+      'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200',
+      'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200',
+      'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-200'
+    ];
+
+    function getColorForChar(name) {
+      if(name === "Narator" || name === "Petunjuk" || name === "Transisi") return 'bg-stone-200 text-stone-600 dark:bg-stone-800 dark:text-stone-400';
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      return colors[Math.abs(hash) % colors.length];
+    }
+
+    // --- Draft Management ---
+    function getDialog(id) {
+      if (draftDialogs[id]) return draftDialogs[id];
+      return dialogs.find(d => d.id === id);
+    }
+
+    function updateDraft(id, updates, skipBookmark = false) {
+      const current = getDialog(id);
+      if (!current) return;
+      
+      draftDialogs[id] = { ...current, ...updates };
+      
+      // Hanya update bookmark jika bukan hanya orderIndex change
+      if (!skipBookmark && (updates.character || updates.text)) {
+        const updated = draftDialogs[id];
+        setLastEditedBookmark(id, updated.character, updated.text);
+      }
+      
+      updatePublishButton();
+    }
+
+    function hasPendingChanges() {
+      return Object.keys(draftDialogs).length > 0 || deletedIds.size > 0;
+    }
+
+    function updatePublishButton() {
+      const btn = document.getElementById('publishBtn');
+      const count = document.getElementById('changeCount');
+      const totalChanges = Object.keys(draftDialogs).length + deletedIds.size;
+      
+      if (totalChanges > 0) {
+        btn.classList.remove('hidden');
+        btn.classList.add('pulse-orange');
+        count.textContent = totalChanges;
+      } else {
+        btn.classList.add('hidden');
+        btn.classList.remove('pulse-orange');
+      }
+    }
+
+    // --- Load Data ---
+    async function loadData() {
+      const q = query(colRef, orderBy("orderIndex", "asc"));
+      onSnapshot(q, (snapshot) => {
+        dialogs = snapshot.docs
+          .filter(d => d.id !== BOOKMARK_DOC_ID)
+          .map(d => {
+            const data = d.data();
+            const { id, ...rest } = data;
+            return { id: d.id, ...rest };
+          });
+        document.getElementById('emptyState').classList.toggle('hidden', dialogs.length > 0);
+        render();
+      });
+    }
+
+    // --- Render Engine ---
+    function render() {
+      const allDialogs = dialogs
+        .filter(d => !deletedIds.has(d.id))
+        .map(d => getDialog(d.id))
+        .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+
+      const chars = [...new Set(allDialogs.map(d => d.character))].sort();
+      document.getElementById('charList').innerHTML = chars.map(c => `<option value="${c}">`).join('');
+
+      const filterCont = document.getElementById('characterToggles');
+      filterCont.innerHTML = '';
+      chars.forEach(char => {
+        const btn = document.createElement('button');
+        const active = selectedFilters.has(char);
+        btn.className = `px-4 py-1.5 rounded-full text-[10px] font-extrabold whitespace-nowrap transition-all uppercase tracking-wider ${active ? 'ring-2 ring-lime-500 scale-105 shadow-lg opacity-100' : 'opacity-30'} ${getColorForChar(char)}`;
+        btn.textContent = char;
+        btn.onclick = () => {
+          if (active) selectedFilters.delete(char);
+          else selectedFilters.add(char);
+          render();
+        };
+        filterCont.appendChild(btn);
+      });
+
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const container = document.getElementById('scriptContainer');
+      container.innerHTML = '';
+      
+      const bookmark = getLastEditedBookmark();
+
+      allDialogs.forEach((d) => {
+        if (search && !(`${d.character} ${d.text}`).toLowerCase().includes(search)) return;
+
+        let isBlurred = false;
+        if (filterMode === 'hide' && selectedFilters.has(d.character)) isBlurred = true;
+        if (filterMode === 'focus' && selectedFilters.size > 0 && !selectedFilters.has(d.character)) isBlurred = true;
+
+        const li = document.createElement('li');
+        li.className = `p-5 bg-white dark:bg-stone-900 border dark:border-stone-800 rounded-2xl shadow-sm transition-all group relative overflow-hidden ${isAdmin ? 'cursor-move ring-lime-500/10' : ''}`;
+        li.setAttribute('data-dialog-id', d.id);
+
+        const isDraft = draftDialogs[d.id];
+        if (isDraft && isAdmin) {
+          const badge = document.createElement('div');
+          badge.className = 'draft-badge';
+          badge.title = 'Draft - belum dipublish';
+          li.appendChild(badge);
+        }
+        
+        const isBookmarked = bookmark && bookmark.id === d.id;
+        if (isBookmarked && isAdmin) {
+          const bookmarkBadge = document.createElement('div');
+          bookmarkBadge.className = 'bookmark-badge';
+          bookmarkBadge.innerHTML = '📍';
+          bookmarkBadge.title = 'Markah terakhir diedit';
+          li.appendChild(bookmarkBadge);
+        }
+
+        // Highlight untuk duplikat baru
+        if (lastDuplicatedId === d.id) {
+          li.classList.add('new-duplicate-highlight');
+          setTimeout(() => {
+            lastDuplicatedId = null;
+          }, 1500);
+        }
+
+        if (isAdmin && editingId === d.id) {
+          li.classList.add('ring-4', 'ring-lime-500/50', 'z-40');
+          li.innerHTML = `
+            <div class="space-y-4" onclick="event.stopPropagation()">
+              <input id="editChar-${d.id}" class="w-full p-3 text-xs font-bold border rounded-xl dark:bg-stone-800 dark:border-stone-700 outline-none focus:border-lime-500" value="${d.character}">
+              <textarea id="editText-${d.id}" rows="5" class="w-full p-3 text-sm font-bold border rounded-xl dark:bg-stone-800 dark:border-stone-700 outline-none focus:border-lime-500 leading-relaxed">${d.text}</textarea>
+              <div class="text-[10px] text-orange-600 font-bold dark:text-orange-400">📝 Edit lokal - tekan PUBLISH untuk simpan ke cloud</div>
+              <div class="flex justify-end gap-3">
+                <button onclick="window.cancelEdit()" class="text-[10px] font-bold text-stone-400 p-2">TUTUP</button>
+              </div>
+            </div>`;
+            
+          if (isDraft) {
+            const badge = document.createElement('div');
+            badge.className = 'draft-badge';
+            li.appendChild(badge);
+          }
+          if (isBookmarked) {
+            const bookmarkBadge = document.createElement('div');
+            bookmarkBadge.className = 'bookmark-badge';
+            bookmarkBadge.innerHTML = '📍';
+            li.appendChild(bookmarkBadge);
+          }
+          
+          setTimeout(() => {
+            const charInput = document.getElementById(`editChar-${d.id}`);
+            const textInput = document.getElementById(`editText-${d.id}`);
+            
+            if (charInput && textInput) {
+              charInput.addEventListener('input', (e) => {
+                updateDraft(d.id, { character: e.target.value });
+              });
+              
+              textInput.addEventListener('input', (e) => {
+                updateDraft(d.id, { text: e.target.value });
+              });
+              
+              textInput.focus();
+            }
+          }, 50);
+        } else {
+          let textWithQuotes = d.text.trim();
+          if(!textWithQuotes.startsWith('"')) textWithQuotes = `"${textWithQuotes}`;
+          if(!textWithQuotes.endsWith('"')) textWithQuotes = `${textWithQuotes}"`;
+
+          li.innerHTML = `
+            <div class="flex justify-between items-center mb-3">
+              <span class="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${getColorForChar(d.character)}">${d.character}</span>
+              ${isAdmin ? `
+                <div class="flex gap-4 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                  <button data-action="bookmark" data-id="${d.id}" class="text-xl ${isBookmarked ? 'opacity-100' : 'opacity-50 hover:opacity-100'}" title="Set sebagai markah">📍</button>
+                  <button data-action="duplicate" data-id="${d.id}" class="text-xl" title="Duplikat dialog">📑</button>
+                  <button data-action="edit" data-id="${d.id}" class="text-xl" title="Edit dialog">✏️</button>
+                  <button data-action="delete" data-id="${d.id}" class="text-xl" title="Hapus dialog">🗑️</button>
+                </div>
+              ` : ''}
+            </div>
+            <p class="text-[15px] font-bold leading-[1.8] dark:text-stone-100 text-stone-800 ${isBlurred ? 'memorize' : ''}" onclick="this.classList.toggle('revealed')">
+              ${textWithQuotes}
+            </p>`;
+            
+          if (isDraft && isAdmin) {
+            const badge = document.createElement('div');
+            badge.className = 'draft-badge';
+            li.appendChild(badge);
+          }
+          if (isBookmarked && isAdmin) {
+            const bookmarkBadge = document.createElement('div');
+            bookmarkBadge.className = 'bookmark-badge';
+            bookmarkBadge.innerHTML = '📍';
+            li.appendChild(bookmarkBadge);
+          }
+        }
+
+        if (isAdmin && editingId !== d.id) {
+          li.draggable = true;
+          li.addEventListener('dragstart', e => { 
+            e.dataTransfer.setData('text', d.id); 
+            li.classList.add('dragging'); 
+          });
+          li.addEventListener('dragend', () => li.classList.remove('dragging'));
+          li.addEventListener('dragover', e => { e.preventDefault(); li.classList.add('drop-target'); });
+          li.addEventListener('dragleave', () => li.classList.remove('drop-target'));
+          li.addEventListener('drop', e => { 
+            e.preventDefault(); 
+            li.classList.remove('drop-target'); 
+            moveItem(e.dataTransfer.getData('text'), d.id); 
+          });
+        }
+        container.appendChild(li);
+      });
+
+      document.getElementById('statsText').textContent = allDialogs.length;
+      updateBookmarkUI();
+    }
+
+    // --- FIXED: Event handler untuk tombol aksi dengan stopPropagation ---
+    function handleActionClick(e) {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const action = btn.dataset.action;
+      const id = btn.dataset.id;
+      
+      switch(action) {
+        case 'bookmark':
+          setAsBookmark(id);
+          break;
+        case 'duplicate':
+          dupItem(id);
+          break;
+        case 'edit':
+          startEdit(id);
+          break;
+        case 'delete':
+          delItem(id);
+          break;
+      }
+    }
+
+    // --- Handlers ---
+    function startEdit(id) { 
+      editingId = id;
+      const dialog = getDialog(id);
+      if (dialog) {
+        setLastEditedBookmark(id, dialog.character, dialog.text);
+      }
+      render(); 
+    }
+    window.startEdit = startEdit;
+
+    window.cancelEdit = () => { 
+      editingId = null;
+      render(); 
+    };
+    
+    function setAsBookmark(id) {
+      const dialog = getDialog(id);
+      if (dialog) {
+        setLastEditedBookmark(id, dialog.character, dialog.text);
+        render();
+        showToast(`📍 Markah diset: ${dialog.character}`);
+      }
+    }
+    window.setAsBookmark = setAsBookmark;
+
+    // --- FIXED: Fungsi hapus dialog ---
+    function delItem(id) {
+      showConfirm("Hapus dialog ini (lokal)?", () => {
+        deletedIds.add(id);
+        delete draftDialogs[id];
+        editingId = null;
+        
+        const bookmark = getLastEditedBookmark();
+        if (bookmark && bookmark.id === id) {
+          clearBookmark();
+        }
+        
+        updatePublishButton();
+        render();
+        showToast("🗑️ Ditandai untuk dihapus");
+      });
+    }
+    window.delItem = delItem;
+
+    // --- FIXED: Fungsi duplikat - sekarang muncul tepat di bawah dialog yang diduplikat ---
+    function dupItem(id) {
+      const it = getDialog(id);
+      if (!it) return;
+      
+      const newId = "draft_copy_" + Date.now();
+      const { id: _oldId, ...rest } = it;
+      
+      // Dapatkan semua dialog yang aktif (tidak dihapus) dan urutkan
+      const allDialogs = dialogs
+        .filter(d => !deletedIds.has(d.id))
+        .map(d => getDialog(d.id))
+        .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+      
+      // Cari posisi dialog yang diduplikat
+      const sourceIndex = allDialogs.findIndex(d => d.id === id);
+      const sourceOrderIndex = it.orderIndex || 0;
+      
+      // OrderIndex baru = tepat setelah source (source + 0.5 untuk sementara)
+      // Lalu re-index semua dialog setelahnya
+      const newOrderIndex = sourceOrderIndex + 0.5;
+      
+      // Update orderIndex untuk semua dialog setelah posisi duplikat
+      allDialogs.forEach((d, idx) => {
+        if (idx > sourceIndex) {
+          // Increment orderIndex untuk dialog setelah source
+          updateDraft(d.id, { orderIndex: (d.orderIndex || idx) + 1 }, true); // skipBookmark = true
+        }
+      });
+      
+      // Buat duplikat dengan orderIndex tepat setelah source
+      draftDialogs[newId] = {
+        ...rest,
+        id: newId,
+        orderIndex: sourceOrderIndex + 1, // Tepat setelah source
+        createdAt: Date.now()
+      };
+      
+      // Tambahkan ke array dialogs
+      dialogs.push(draftDialogs[newId]);
+      
+      // Track untuk highlight
+      lastDuplicatedId = newId;
+      
+      // Set bookmark ke duplikat baru
+      setLastEditedBookmark(newId, draftDialogs[newId].character, draftDialogs[newId].text);
+      
+      updatePublishButton();
+      render();
+      showToast("📑 Duplikat dibuat tepat di bawah");
+      
+      // Scroll ke duplikat baru
+      setTimeout(() => {
+        const element = document.querySelector(`[data-dialog-id="${newId}"]`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
+    window.dupItem = dupItem;
+
+    function moveItem(fromId, toId) {
+      // PENTING: Harus di-sort agar sesuai dengan tampilan UI
+      const allDialogs = dialogs
+        .filter(d => !deletedIds.has(d.id))
+        .map(d => getDialog(d.id))
+        .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+      
+      const fromIndex = allDialogs.findIndex(x => x.id === fromId);
+      const toIndex = allDialogs.findIndex(x => x.id === toId);
+      
+      if (fromIndex === -1 || toIndex === -1) {
+        showToast("❌ Gagal memindahkan dialog");
+        return;
+      }
+      
+      // Clone array dan pindahkan item
+      const items = [...allDialogs];
+      const [movedItem] = items.splice(fromIndex, 1);
+      items.splice(toIndex, 0, movedItem);
+      
+      // Update orderIndex untuk SEMUA items dengan index baru
+      items.forEach((item, newIndex) => {
+        // Selalu update orderIndex agar konsisten
+        const currentDialog = getDialog(item.id);
+        if (currentDialog.orderIndex !== newIndex) {
+          updateDraft(item.id, { orderIndex: newIndex }, true); // skipBookmark = true
+        }
+      });
+      
+      // Set bookmark ke item yang dipindah
+      if (movedItem) {
+        setLastEditedBookmark(fromId, movedItem.character, movedItem.text);
+      }
+      
+      // Re-render untuk menampilkan perubahan
+      render();
+      showToast("↕️ Urutan diubah (lokal)");
+    }
+
+    // --- Auth & Tools ---
+    document.getElementById('submitLoginBtn').onclick = async () => {
+      if (document.getElementById('adminPasswordInput').value === 'admin') {
+        isAdmin = true;
+        document.getElementById('adminPanel').classList.remove('hidden');
+        document.getElementById('loginModal').classList.add('hidden');
+        showToast("🔄 Memuat markah dari cloud...");
+        
+        await loadBookmarkFromCloud();
+        updateBookmarkUI();
+        render();
+        
+        setTimeout(() => {
+          const bookmark = getLastEditedBookmark();
+          if (bookmark) {
+            jumpToBookmark(true);
+            showToast("✅ Editor Aktif - Lompat ke markah terakhir");
+          } else {
+            showToast("📍 Editor Aktif - Belum ada markah");
+          }
+        }, 500);
+      } else showToast("❌ Salah Password!");
+    };
+
+    document.getElementById('authBtn').onclick = () => { 
+      if(isAdmin) { 
+        isAdmin = false; 
+        editingId = null;
+        document.getElementById('adminPanel').classList.add('hidden');
+        updateBookmarkUI();
+        showToast("🔓 Logout Berhasil"); 
+        render(); 
+      } else { 
+        document.getElementById('loginModal').classList.remove('hidden'); 
+      } 
+    };
+
+    document.getElementById('cancelLoginBtn').onclick = () => document.getElementById('loginModal').classList.add('hidden');
+    document.getElementById('logoutBtn').onclick = () => location.reload();
+    document.getElementById('themeBtn').onclick = () => { 
+      const isDark = document.documentElement.classList.toggle('dark'); 
+      document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙'; 
+    };
+    
+    document.getElementById('bookmarkBtn').onclick = () => {
+      if (!document.getElementById('bookmarkBtn').disabled) {
+        jumpToBookmark(true);
+      } else {
+        showToast("📍 Belum ada markah - edit dialog dulu");
+      }
+    };
+    document.getElementById('jumpToBookmarkBtn').onclick = () => {
+      if (!document.getElementById('jumpToBookmarkBtn').disabled) {
+        jumpToBookmark(true);
+      }
+    };
+    document.getElementById('clearBookmarkBtn').onclick = () => {
+      showConfirm("Hapus markah terakhir?", async () => {
+        await clearBookmark();
+      });
+    };
+
+    document.getElementById('addForm').onsubmit = (e) => {
+      e.preventDefault();
+      let char = document.getElementById('charInput').value.trim();
+      const text = document.getElementById('textInput').value.trim();
+      if(!char || !text) return;
+      
+      const match = dialogs.find(d => d.character.toLowerCase() === char.toLowerCase());
+      if(match) char = match.character;
+      
+      const id = "draft_" + Date.now();
+      const maxOrder = Math.max(...dialogs.map(d => d.orderIndex || 0), 0);
+      
+      const newDialog = {
+        id,
+        character: char,
+        text: text,
+        orderIndex: maxOrder + 1,
+        createdAt: Date.now()
+      };
+      
+      draftDialogs[id] = newDialog;
+      dialogs.push(newDialog);
+      
+      setLastEditedBookmark(id, char, text);
+      
+      document.getElementById('charInput').value = '';
+      document.getElementById('textInput').value = '';
+      
+      updatePublishButton();
+      render();
+      showToast("➕ Dialog ditambahkan (lokal)");
+      
+      setTimeout(() => jumpToBookmark(true), 100);
+    };
+
+    document.getElementById('modeHideBtn').onclick = () => {
+      filterMode = 'hide';
+      document.getElementById('modeHideBtn').className = "px-3 py-2 rounded-lg text-[10px] font-bold uppercase bg-white text-rose-600 shadow-sm dark:bg-stone-700 dark:text-rose-400";
+      document.getElementById('modeFocusBtn').className = "px-3 py-2 rounded-lg text-[10px] font-bold uppercase text-stone-500 p-2";
+      render();
+    };
+
+    document.getElementById('modeFocusBtn').onclick = () => {
+      filterMode = 'focus';
+      document.getElementById('modeFocusBtn').className = "px-3 py-2 rounded-lg text-[10px] font-bold uppercase bg-white text-blue-600 shadow-sm dark:bg-stone-700 dark:text-blue-400";
+      document.getElementById('modeHideBtn').className = "px-3 py-2 rounded-lg text-[10px] font-bold uppercase text-stone-500 p-2";
+      render();
+    };
+
+    document.getElementById('resetHiddenBtn').onclick = () => { selectedFilters.clear(); render(); };
+
+    // --- PUBLISH: Batch Write ke Firestore ---
+    document.getElementById('publishBtn').onclick = () => {
+      const totalChanges = Object.keys(draftDialogs).length + deletedIds.size;
+      showConfirm(`Publish ${totalChanges} perubahan ke cloud?`, async () => {
+        try {
+          showToast("🔄 Publishing ke Firestore...");
+          
+          const batch = writeBatch(db);
+          
+          for (const [id, draft] of Object.entries(draftDialogs)) {
+            const { id: _id, ...data } = draft;
+            batch.set(doc(db, "naskah_joko_kendil", id), data, { merge: true });
+          }
+          
+          for (const id of deletedIds) {
+            batch.delete(doc(db, "naskah_joko_kendil", id));
+          }
+          
+          await batch.commit();
+          
+          draftDialogs = {};
+          deletedIds.clear();
+          
+          updatePublishButton();
+          showToast(`✅ ${totalChanges} perubahan berhasil dipublish!`);
+          
+        } catch (error) {
+          console.error('Publish error:', error);
+          showToast('❌ Gagal publish ke cloud');
+        }
+      });
+    };
+
+    // --- Export ---
+    document.getElementById('exportBtn').onclick = () => {
+      const { jsPDF } = window.jspdf;
+      const docPDF = new jsPDF();
+      let y = 20;
+      docPDF.setFontSize(20); 
+      docPDF.text("NASKAH JOKO KENDIL", 105, y, {align:'center'}); 
+      y+=15;
+      docPDF.setFontSize(11);
+      dialogs.forEach(d => {
+        if(y > 270) { docPDF.addPage(); y=20; }
+        docPDF.setFont("helvetica", "bold"); 
+        docPDF.text(`${d.character.toUpperCase()}:`, 20, y);
+        docPDF.setFont("helvetica", "normal");
+        const lines = docPDF.splitTextToSize(`"${d.text}"`, 165);
+        docPDF.text(lines, 20, y+6);
+        y += (lines.length * 6) + 12;
+      });
+      docPDF.save("naskah_joko_kendil_rizk.pdf");
+    };
+
+    // --- Reset Script ---
+    document.getElementById('resetScriptBtn').onclick = () => {
+      showConfirm("Hapus SEMUA data cloud dan ganti dengan naskah FULL?", async () => {
+        showToast("🔄 Sedang mereset...");
+        const batch = writeBatch(db);
+        const oldSnap = await getDocs(colRef);
+        oldSnap.forEach(d => {
+          if (d.id !== BOOKMARK_DOC_ID) {
+            batch.delete(d.ref);
+          }
+        });
+
+        const fullScript = [
+          { "character": "Narator", "text": "(SCENE 1: PERTEMUAN DENGAN DEWA. Joko Kendil sedang bertapa, mengeluh tentang nasib buruk rupanya. Dewa turun dari kahyangan diiringi suara angin.)" },
+          { "character": "Joko Kendil", "text": "Pukulun... Kula niki ngenes. Teng omah niku selalu dihina, selalu dinyek kalih wong-wong kampung." },
+          { "character": "Dewa", "text": "Oh ngono to? Dadi uripmu ki rumangsa ora dadi kaya wong kampung?" },
+          { "character": "Narator", "text": "(TAMAT)" }
+        ];
+
+        for(let i=0; i<fullScript.length; i++) {
+          batch.set(doc(colRef, (Date.now()+i).toString()), { ...fullScript[i], orderIndex: i, createdAt: Date.now() });
+        }
+        await batch.commit();
+        showToast("✅ Database Berhasil di-reset!");
+      });
+    };
+
+    // --- Helpers ---
+    function showToast(m) { 
+      const t = document.getElementById('toast'); 
+      t.textContent = m; 
+      t.classList.remove('hidden'); 
+      setTimeout(() => t.classList.add('hidden'), 3000); 
+    }
+
+    function showConfirm(m, cb) { 
+      document.getElementById('confirmMessage').textContent = m; 
+      confirmCallback = cb; 
+      document.getElementById('confirmModal').classList.remove('hidden'); 
+    }
+
+    document.getElementById('yesConfirmBtn').onclick = () => { 
+      confirmCallback(); 
+      document.getElementById('confirmModal').classList.add('hidden'); 
+    };
+
+    document.getElementById('cancelConfirmBtn').onclick = () => document.getElementById('confirmModal').classList.add('hidden');
+    document.getElementById('searchInput').oninput = render;
+
+    // Event delegation untuk tombol aksi - dipasang SATU KALI di luar render()
+    document.getElementById('scriptContainer').addEventListener('click', handleActionClick);
+
+    loadData();
+  </script>
+</body>
 </html>
